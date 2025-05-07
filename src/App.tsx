@@ -13,6 +13,7 @@ interface Task {
   status: 'todo' | 'in-progress' | 'completed';
   date: string; // YYYY-MM-DD
   completedAt?: string; // YYYY-MM-DD
+  comment?: string;
 }
 
 const getToday = () => new Date().toISOString().slice(0, 10);
@@ -35,6 +36,7 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [comment, setComment] = useState('');
   const [nextId, setNextId] = useState(1);
   const toast = useToast();
 
@@ -71,12 +73,14 @@ const App: React.FC = () => {
         endTime,
         status: 'todo',
         date: today,
+        comment,
       },
     ]);
     setNextId(nextId + 1);
     setInput('');
     setStartTime('');
     setEndTime('');
+    setComment('');
   };
 
   const updateStatus = (id: number, status: Task['status']) => {
@@ -89,6 +93,14 @@ const App: React.FC = () => {
               completedAt: status === 'completed' ? today : task.completedAt,
             }
           : task
+      )
+    );
+  };
+
+  const updateComment = (id: number, newComment: string) => {
+    setTasks(tasks =>
+      tasks.map(task =>
+        task.id === id ? { ...task, comment: newComment } : task
       )
     );
   };
@@ -150,6 +162,13 @@ const App: React.FC = () => {
                 bg="white"
                 flex={1}
               />
+              <Input
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                placeholder="Comment (optional)"
+                bg="white"
+                flex={2}
+              />
               <Button colorScheme="brand" onClick={addTask}>
                 Add
               </Button>
@@ -182,13 +201,32 @@ const App: React.FC = () => {
                       <TagLeftIcon boxSize="16px" as={task.status === 'completed' ? CheckCircleIcon : TimeIcon} />
                       <TagLabel textTransform="capitalize">{task.status.replace('-', ' ')}</TagLabel>
                     </Tag>
-                    <Text
-                      as={task.status === 'completed' ? 's' : undefined}
-                      color={task.status === 'completed' ? 'gray.400' : 'gray.700'}
-                      fontWeight="medium"
-                    >
-                      {task.description}
-                    </Text>
+                    <Stack>
+                      <Text
+                        as={task.status === 'completed' ? 's' : undefined}
+                        color={task.status === 'completed' ? 'gray.400' : 'gray.700'}
+                        fontWeight="medium"
+                      >
+                        {task.description}
+                      </Text>
+                      {task.status === 'in-progress' ? (
+                        <Input
+                          value={task.comment || ''}
+                          onChange={e => updateComment(task.id, e.target.value)}
+                          placeholder="Add a comment"
+                          size="sm"
+                          width="200px"
+                          bg="gray.50"
+                          mt={1}
+                        />
+                      ) : (
+                        task.comment && (
+                          <Text color="gray.500" fontSize="sm" mt={1}>
+                            {task.comment}
+                          </Text>
+                        )
+                      )}
+                    </Stack>
                     <Text color="brand.400" fontSize="sm">
                       {task.startTime} - {task.endTime}
                     </Text>
@@ -261,9 +299,16 @@ const App: React.FC = () => {
                           <TagLeftIcon boxSize="16px" as={CheckCircleIcon} />
                           <TagLabel>Completed</TagLabel>
                         </Tag>
-                        <Text as="s" color="gray.500" fontWeight="medium">
-                          {task.description}
-                        </Text>
+                        <Stack>
+                          <Text as="s" color="gray.500" fontWeight="medium">
+                            {task.description}
+                          </Text>
+                          {task.comment && (
+                            <Text color="gray.500" fontSize="sm" mt={1}>
+                              {task.comment}
+                            </Text>
+                          )}
+                        </Stack>
                         <Text color="brand.400" fontSize="sm">
                           {task.startTime} - {task.endTime}
                         </Text>
