@@ -40,14 +40,12 @@ const App: React.FC = () => {
   const [nextId, setNextId] = useState(1);
   const toast = useToast();
 
-  // Load tasks from localStorage on mount
   useEffect(() => {
     const loaded = loadTasks();
     setTasks(loaded);
     setNextId(loaded.reduce((max, t) => Math.max(max, t.id), 0) + 1);
   }, []);
 
-  // Save tasks to localStorage whenever they change
   useEffect(() => {
     saveTasks(tasks);
   }, [tasks]);
@@ -109,13 +107,11 @@ const App: React.FC = () => {
     setTasks(tasks => tasks.filter(task => task.id !== id));
   };
 
-  // Filter tasks for today and for history
   const todayTasks = tasks.filter(task => task.date === today);
   const historyTasks = tasks
     .filter(task => task.status === 'completed' && task.completedAt && task.completedAt !== today)
     .sort((a, b) => (a.completedAt! < b.completedAt! ? 1 : -1));
 
-  // Group history tasks by date
   const historyByDate: { [date: string]: Task[] } = {};
   historyTasks.forEach(task => {
     if (!historyByDate[task.completedAt!]) historyByDate[task.completedAt!] = [];
@@ -123,28 +119,45 @@ const App: React.FC = () => {
   });
 
   return (
-    <Box maxW="lg" mx="auto" mt={10} p={6} borderWidth={1} borderRadius="lg" bg="gray.50" boxShadow="md">
-      <Heading mb={2} color="brand.500" textAlign="center" size="lg">
+    <Box
+      maxW={["100vw", "lg"]}
+      mx="auto"
+      mt={[2, 10]}
+      p={[2, 6]}
+      borderWidth={1}
+      borderRadius="lg"
+      bg="gray.50"
+      boxShadow="md"
+      minH="100vh"
+    >
+      <Heading mb={2} color="brand.500" textAlign="center" size={["md", "lg"]}>
         Task Tracker
       </Heading>
-      <Text textAlign="center" color="gray.600" mb={6} fontWeight="bold">
+      <Text textAlign="center" color="gray.600" mb={6} fontWeight="bold" fontSize={["sm", "md"]}>
         {new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
       </Text>
       <Tabs index={tabIndex} onChange={setTabIndex} isFitted variant="enclosed">
         <TabList mb={4}>
-          <Tab>Today</Tab>
-          <Tab>History</Tab>
+          <Tab fontSize={["sm", "md"]}>Today</Tab>
+          <Tab fontSize={["sm", "md"]}>History</Tab>
         </TabList>
         <TabPanels>
           {/* Today Tab */}
-          <TabPanel>
-            <Flex mb={4} gap={2} flexWrap="wrap">
+          <TabPanel px={[0, 4]}>
+            <Flex
+              mb={4}
+              gap={2}
+              flexWrap="wrap"
+              direction={["column", "row"]}
+              align={["stretch", "center"]}
+            >
               <Input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 placeholder="Task description"
                 bg="white"
                 flex={2}
+                fontSize={["sm", "md"]}
               />
               <Input
                 type="time"
@@ -153,6 +166,7 @@ const App: React.FC = () => {
                 placeholder="Start"
                 bg="white"
                 flex={1}
+                fontSize={["sm", "md"]}
               />
               <Input
                 type="time"
@@ -161,6 +175,7 @@ const App: React.FC = () => {
                 placeholder="End"
                 bg="white"
                 flex={1}
+                fontSize={["sm", "md"]}
               />
               <Input
                 value={comment}
@@ -168,30 +183,33 @@ const App: React.FC = () => {
                 placeholder="Comment (optional)"
                 bg="white"
                 flex={2}
+                fontSize={["sm", "md"]}
               />
-              <Button colorScheme="brand" onClick={addTask}>
+              <Button colorScheme="brand" onClick={addTask} fontSize={["sm", "md"]}>
                 Add
               </Button>
             </Flex>
             <List spacing={3}>
               {todayTasks.length === 0 && (
-                <Text color="gray.400" textAlign="center">
+                <Text color="gray.400" textAlign="center" fontSize={["sm", "md"]}>
                   No tasks for today. Add your first task!
                 </Text>
               )}
               {todayTasks.map(task => (
                 <ListItem
                   key={task.id}
-                  p={4}
+                  p={[2, 4]}
                   borderWidth={1}
                   borderRadius="md"
                   bg="white"
                   boxShadow="sm"
                   display="flex"
-                  alignItems="center"
+                  flexDirection={["column", "row"]}
+                  alignItems={["flex-start", "center"]}
                   justifyContent="space-between"
+                  mb={[2, 0]}
                 >
-                  <Stack direction="row" align="center" spacing={4}>
+                  <Stack direction={["column", "row"]} align={["flex-start", "center"]} spacing={[2, 4]} w="100%">
                     <Tag
                       size="md"
                       colorScheme={task.status === 'completed' ? 'green' : task.status === 'in-progress' ? 'blue' : 'gray'}
@@ -206,6 +224,8 @@ const App: React.FC = () => {
                         as={task.status === 'completed' ? 's' : undefined}
                         color={task.status === 'completed' ? 'gray.400' : 'gray.700'}
                         fontWeight="medium"
+                        fontSize={["sm", "md"]}
+                        wordBreak="break-word"
                       >
                         {task.description}
                       </Text>
@@ -215,29 +235,31 @@ const App: React.FC = () => {
                           onChange={e => updateComment(task.id, e.target.value)}
                           placeholder="Add a comment"
                           size="sm"
-                          width="200px"
+                          width={["100%", "200px"]}
                           bg="gray.50"
                           mt={1}
+                          fontSize={["sm", "md"]}
                         />
                       ) : (
                         task.comment && (
-                          <Text color="gray.500" fontSize="sm" mt={1}>
+                          <Text color="gray.500" fontSize={["xs", "sm"]} mt={1} wordBreak="break-word">
                             {task.comment}
                           </Text>
                         )
                       )}
                     </Stack>
-                    <Text color="brand.400" fontSize="sm">
+                    <Text color="brand.400" fontSize={["xs", "sm"]}>
                       {task.startTime} - {task.endTime}
                     </Text>
                   </Stack>
-                  <Stack direction="row" gap={1}>
+                  <Stack direction="row" gap={1} mt={[2, 0]}>
                     {task.status !== 'in-progress' && (
                       <Button
                         size="sm"
                         colorScheme="blue"
                         variant="outline"
                         onClick={() => updateStatus(task.id, 'in-progress')}
+                        fontSize={["xs", "sm"]}
                       >
                         In Progress
                       </Button>
@@ -248,6 +270,7 @@ const App: React.FC = () => {
                         colorScheme="green"
                         variant="outline"
                         onClick={() => updateStatus(task.id, 'completed')}
+                        fontSize={["xs", "sm"]}
                       >
                         Complete
                       </Button>
@@ -259,6 +282,7 @@ const App: React.FC = () => {
                       colorScheme="red"
                       variant="ghost"
                       onClick={() => deleteTask(task.id)}
+                      fontSize={["xs", "sm"]}
                     />
                   </Stack>
                 </ListItem>
@@ -266,30 +290,32 @@ const App: React.FC = () => {
             </List>
           </TabPanel>
           {/* History Tab */}
-          <TabPanel>
+          <TabPanel px={[0, 4]}>
             {Object.keys(historyByDate).length === 0 && (
-              <Text color="gray.400" textAlign="center">
+              <Text color="gray.400" textAlign="center" fontSize={["sm", "md"]}>
                 No completed tasks from previous days.
               </Text>
             )}
             {Object.entries(historyByDate).map(([date, tasks]) => (
               <Box key={date} mb={6}>
-                <Text fontWeight="bold" color="brand.500" mb={2}>
+                <Text fontWeight="bold" color="brand.500" mb={2} fontSize={["sm", "md"]}>
                   {new Date(date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </Text>
                 <List spacing={2}>
                   {tasks.map(task => (
                     <ListItem
                       key={task.id}
-                      p={3}
+                      p={[2, 3]}
                       borderWidth={1}
                       borderRadius="md"
                       bg="gray.100"
                       display="flex"
-                      alignItems="center"
+                      flexDirection={["column", "row"]}
+                      alignItems={["flex-start", "center"]}
                       justifyContent="space-between"
+                      mb={[2, 0]}
                     >
-                      <Stack direction="row" align="center" spacing={4}>
+                      <Stack direction={["column", "row"]} align={["flex-start", "center"]} spacing={[2, 4]} w="100%">
                         <Tag
                           size="md"
                           colorScheme="green"
@@ -300,16 +326,16 @@ const App: React.FC = () => {
                           <TagLabel>Completed</TagLabel>
                         </Tag>
                         <Stack>
-                          <Text as="s" color="gray.500" fontWeight="medium">
+                          <Text as="s" color="gray.500" fontWeight="medium" fontSize={["sm", "md"]} wordBreak="break-word">
                             {task.description}
                           </Text>
                           {task.comment && (
-                            <Text color="gray.500" fontSize="sm" mt={1}>
+                            <Text color="gray.500" fontSize={["xs", "sm"]} mt={1} wordBreak="break-word">
                               {task.comment}
                             </Text>
                           )}
                         </Stack>
-                        <Text color="brand.400" fontSize="sm">
+                        <Text color="brand.400" fontSize={["xs", "sm"]}>
                           {task.startTime} - {task.endTime}
                         </Text>
                       </Stack>
